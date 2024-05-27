@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Image Upload</title>
+    <link rel="stylesheet" href="Uportfolio.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1 class="title">Share Your Own Portfolio by Uploading Image</h1>
+        <div class="button-group">
+            <input type="file" id="fileInput" accept="image/*" multiple>
+            <button id="uploadButton">Upload</button>
+            <button id="deleteButton">Delete Selected Images</button>
+        </div>
+    </div>
+    <div id="imageSlider" class="slider-container"></div>
+
+    <div class="back-btn" onclick="window.history.back()">✖</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import { getDatabase, ref, set, child, onValue, remove, push } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTdtHZ7JikncpFcmWs-5j6MrosamihTjM",
+            authDomain: "ads-final-project-938d2.firebaseapp.com",
+            databaseURL: "https://ads-final-project-938d2-default-rtdb.firebaseio.com/",
+            projectId: "ads-final-project-938d2",
+            storageBucket: "ads-final-project-938d2.appspot.com",
+            messagingSenderId: "849152747175",
+            appId: "1:849152747175:web:612f72d4e31c95af75dd82"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        const imageSlider = document.getElementById("imageSlider");
+
+        function uploadImages() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+
+            console.log('Uploading images:', files); // Debugging log
+
+            Array.from(files).forEach(file => {
+                const uniqueKey = push(child(ref(db), 'Portfolios')).key;
+                const storageRef = sRef(storage, 'portfolios/' + uniqueKey);
+                const uploadTask = uploadBytesResumable(storageRef, file);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Handle progress
+                    },
+                    (error) => {
+                        console.error('Upload failed:', error);
+                    },
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                            console.log('File available at', downloadURL); // Debugging log
+                            set(ref(db, 'Portfolios/' + uniqueKey), {
+                                url: downloadURL,
+                                key: uniqueKey
+                            }).then(() => {
+                                displayImage(uniqueKey, downloadURL);
+                            }).catch((error) => {
+                                console.error('Error saving to database:', error);
+                            });
+                        });
+                    }
+                );
+            });
+        }
+
+        function displayImage(key, url) {
+            // Check if the image already exists
+            if (document.querySelector(`[data-key="${key}"]`)) return;
+
+            const imgContainer = document.createElement('div');
+            imgContainer.setAttribute('class', 'image-container');
+            imgContainer.setAttribute('data-key', key);
+
+            const img = document.createElement('img');
+            img.setAttribute('src', url);
+            img.setAttribute('alt', 'Portfolio Image');
+
+            const checkbox = document.createElement('input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('class', 'delete-checkbox');
+
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(checkbox);
+            imageSlider.appendChild(imgContainer);
+        }
+
+        function deleteImages() {
+            const checkboxes = document.querySelectorAll('.delete-checkbox:checked');
+
+            checkboxes.forEach(checkbox => {
+                const imgContainer = checkbox.parentElement;
+                const key = imgContainer.getAttribute('data-key');
+
+                const storageRef = sRef(storage, 'portfolios/' + key);
+                deleteObject(storageRef).then(() => {
+                    console.log('Deleted from storage'); // Debugging log
+                }).catch(error => {
+                    console.error('Error deleting from storage:', error);
+                });
+
+                remove(ref(db, 'Portfolios/' + key)).then(() => {
+                    console.log('Deleted from database'); // Debugging log
+                    imgContainer.remove();
+                }).catch(error => {
+                    console.error('Error deleting from database:', error);
+                });
+            });
+        }
+
+        function loadImages() {
+            onValue(ref(db, 'Portfolios'), (snapshot) => {
+                const images = snapshot.val();
+                imageSlider.innerHTML = ''; // Clear existing images
+                if (images) {
+                    Object.keys(images).forEach(key => {
+                        displayImage(key, images[key].url);
+                    });
+                }
+            });
+        }
+
+        window.uploadImages = uploadImages;
+        window.deleteImages = deleteImages;
+
+        document.getElementById("uploadButton").addEventListener("click", uploadImages);
+        document.getElementById("deleteButton").addEventListener("click", deleteImages);
+
+        // Load images once on page load
+        window.onload = loadImages;
+
+    </script>
+
+</body>
+
+</html>

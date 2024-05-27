@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <title>Login and Sign Up</title>
+  <link rel="stylesheet" href="register.css">
+  <!-- Fontawesome CDN Link -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Firebase JavaScript SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.5.0/firebase-auth.js"></script>
+</head>
+<body>
+<div class="container">
+  <input type="checkbox" id="flip">
+  <div class="cover">
+    <div class="front">
+      <img src="images/frontImg.png" alt="">
+      <div class="text">
+        <span class="text-1">Every login opens a <br> door to discovery.</span>
+        <span class="text-2">Let's explore together!</span>            
+      </div>
+    </div>
+    <div class="back">
+      <img class="backImg" src="images/backImg.png" alt="">
+      <div class="text">
+        <span class="text-1">Every new sign-up is a <br> step towards connection.</span>
+        <span class="text-2">Join us and embark on your journey!</span>
+      </div>
+    </div>
+  </div>
+  <div class="forms">
+    <div class="form-content">
+      <div class="login-form">
+        <div class="title">Login</div>
+        <form id="login-form">
+          <div class="input-boxes">
+            <div class="input-box">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="login-email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-box">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="login-password" placeholder="Enter your password" required>
+            </div>
+            <div class="text"><a href="#">Forgot password?</a></div>
+            <div class="button input-box">
+              <input type="submit" value="Submit">
+            </div>
+            <div class="text sign-up-text">Don't have an account? <label for="flip">Signup now</label></div>
+          </div>
+        </form>
+      </div>
+      <div class="signup-form">
+        <div class="title">Signup</div>
+        <form id="signup-form">
+          <div class="input-boxes">
+            <div class="input-box">
+              <i class="fas fa-user"></i>
+              <input type="text" id="signup-name" placeholder="Enter your name" required>
+            </div>
+            <div class="input-box">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="signup-email" placeholder="Enter your email" required>
+            </div>
+            <div class="input-box">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="signup-password" placeholder="Enter your password" required>
+            </div>
+            <div class="button input-box">
+              <input type="submit" value="Submit">
+            </div>
+            <div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCTdtHZ7JikncpFcmWs-5j6MrosamihTjM",
+    authDomain: "ads-final-project-938d2.firebaseapp.com",
+    projectId: "ads-final-project-938d2",
+    storageBucket: "ads-final-project-938d2.appspot.com",
+    messagingSenderId: "849152747175",
+    appId: "1:849152747175:web:612f72d4e31c95af75dd82"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
+  // Login functionality
+  const loginForm = document.querySelector('#login-form');
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = document.querySelector('#login-email').value;
+    const password = document.querySelector('#login-password').value;
+
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        alert('Login successful!');
+        console.log('Redirecting to main.html');
+        window.location.href = 'main.html';
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        alert(`Error: ${errorMessage}`);
+        console.error(`Error: ${errorMessage}`);
+      });
+  });
+
+  // Signup functionality
+  const signupForm = document.querySelector('#signup-form');
+  signupForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.querySelector('#signup-name').value;
+    const email = document.querySelector('#signup-email').value;
+    const password = document.querySelector('#signup-password').value;
+
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        alert('Signup successful!');
+        console.log('Redirecting to main.html');
+        window.location.href = 'main.html';
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        alert(`Error: ${errorMessage}`);
+        console.error(`Error: ${errorMessage}`);
+      });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+   <meta charset="utf-8">
+   <title>Contact Us Form</title>
+   <link rel="stylesheet" href="ContactUs.css">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <!-- Firebase SDK -->
+   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+   <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+    apiKey: "AIzaSyCTdtHZ7JikncpFcmWs-5j6MrosamihTjM",
+    authDomain: "ads-final-project-938d2.firebaseapp.com",
+    databaseURL: "https://ads-final-project-938d2-default-rtdb.firebaseio.com/",
+    projectId: "ads-final-project-938d2",
+    storageBucket: "ads-final-project-938d2.appspot.com",
+    messagingSenderId: "849152747175",
+    appId: "1:849152747175:web:612f72d4e31c95af75dd82"
+  };
+
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+   </script>
+</head>
+<body>
+   <div class="container">
+       <div class="text">Please fill out this form to hire me!</div>
+       <form id="contactForm">
+          <div class="form-row">
+             <div class="input-data">
+                <input type="text" id="firstName" required>
+                <div class="underline"></div>
+                <label for="firstName">First Name</label>
+             </div>
+             <div class="input-data">
+                <input type="text" id="lastName" required>
+                <div class="underline"></div>
+                <label for="lastName">Last Name</label>
+             </div>
+          </div>
+          <div class="form-row">
+             <div class="input-data">
+                <input type="email" id="email" required>
+                <div class="underline"></div>
+                <label for="email">Email Address</label>
+             </div>
+             <div class="input-data">
+                <input type="text" id="website" required>
+                <div class="underline"></div>
+                <label for="website">Website Name</label>
+             </div>
+          </div>
+          <div class="form-row">
+             <div class="input-data textarea">
+                <textarea id="message" rows="8" cols="80" required></textarea>
+                <br />
+                <div class="underline"></div>
+                <label for="message">Write your message</label>
+                <br />
+                <div class="form-row submit-btn">
+                   <div class="input-data">
+                      <div class="inner"></div>
+                      <input type="submit" value="submit">
+                   </div>
+                </div>
+             </div>
+          </div>
+       </form>
+    </div>
+
+    <script>
+      // Submit form data to Firebase Realtime Database
+      document.getElementById('contactForm').addEventListener('submit', async (e) => {
+         e.preventDefault();
+
+         const firstName = document.getElementById('firstName').value;
+         const lastName = document.getElementById('lastName').value;
+         const email = document.getElementById('email').value;
+         const website = document.getElementById('website').value;
+         const message = document.getElementById('message').value;
+
+         console.log("Submitting form data...");
+         console.log({
+            firstName,
+            lastName,
+            email,
+            website,
+            message
+         });
+
+         try {
+            const newContactRef = db.ref('contacts').push();
+            await newContactRef.set({
+               firstName: firstName,
+               lastName: lastName,
+               email: email,
+               website: website,
+               message: message,
+               timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+            console.log('Form submitted successfully!');
+            alert('Form submitted successfully!');
+            document.getElementById('contactForm').reset();
+         } catch (error) {
+            console.error('Error submitting form: ', error);
+            alert('Error submitting form: ' + error.message);
+         }
+      });
+    </script>
+</body>
+</html>
