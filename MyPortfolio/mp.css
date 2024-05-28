@@ -256,3 +256,17 @@
   a {
     text-decoration: none;
   }
+
+  .back-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 20px;
+    color: black;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  
+  .back-btn:hover {
+    opacity: 0.8;
+  }
